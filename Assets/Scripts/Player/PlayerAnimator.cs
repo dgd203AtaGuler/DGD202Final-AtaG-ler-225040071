@@ -1,6 +1,4 @@
 using UnityEngine;
-using Quaternion = UnityEngine.Quaternion;
-using Vector3 = UnityEngine.Vector3;
 
 public class PlayerAnimator : MonoBehaviour
 {
@@ -9,7 +7,7 @@ public class PlayerAnimator : MonoBehaviour
     [SerializeField] private Transform _mesh;
 
     private float _moveSpeed;
-    
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -23,7 +21,7 @@ public class PlayerAnimator : MonoBehaviour
 
     private void Update()
     {
-        Vector3 velocity = _rigidbody.linearVelocity;
+        Vector3 velocity = _rigidbody.linearVelocity; // d�zeltildi
         float forwardVelocity = Vector3.Dot(velocity, transform.forward);
         if (forwardVelocity != 0)
             _mesh.localRotation *= Quaternion.Euler(Mathf.Deg2Rad * (360 / forwardVelocity), 0, 0);

@@ -1,26 +1,31 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMover : MonoBehaviour
 {
-    private Rigidbody _rigidbody;
-    
-    [Header("Movement Parameters")]
-    [field: SerializeField] public float MoveSpeed { get; private set; }
-    [SerializeField] private float _turnSpeed;
-    
+    [SerializeField] private float moveForce = 10f;
+
+    public float MoveSpeed => moveForce; // Bu satır eklendi
+
+    private Rigidbody rb;
+    private Vector3 moveDirection;
+
     private void Awake()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
     }
 
-    public void Move(Vector2 direction)
+    private void Update()
     {
-        float moveX = direction.x;
-        float moveZ = direction.y;
+        float moveX = Input.GetAxisRaw("Horizontal"); // A (-1) → D (+1)
+        float moveZ = Input.GetAxisRaw("Vertical");   // S (-1) → W (+1)
 
-        transform.Rotate(Vector3.up, moveX * _turnSpeed * Time.deltaTime, Space.World);
-        
-        _rigidbody.linearVelocity = transform.forward * (moveZ * MoveSpeed);
+        moveDirection = new Vector3(moveX, 0f, moveZ).normalized;
+    }
+
+    private void FixedUpdate()
+    {
+        rb.AddForce(moveDirection * moveForce, ForceMode.Force);
     }
 }

@@ -1,62 +1,60 @@
-using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class PelletSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject _pelletPrefab;
 
-    [Range(1,20)]
+    [Range(1, 50)]
     [field: SerializeField] public int NumberToSpawn;
-    
-    [SerializeField] private Vector2 _arenaSize;
-    private Vector2 _arenaExtents;
-    
-    private Vector2[] _pelletPositions;
 
+    [Header("3D Spawn Alaný Boyutu")]
+    [SerializeField] private Vector3 arenaSize = new Vector3(10, 1, 10); // X, Y, Z
+
+    private Vector3 arenaExtents;
+    private Vector3[] pelletPositions;
     private float _detectionRadius = 1f;
-    
+
     private void Start()
     {
-        _arenaExtents = _arenaSize * 0.5f;
+        arenaExtents = arenaSize * 0.5f;
+        SpawnPellets();
     }
 
     public void SpawnPellets()
     {
-        _pelletPositions = new Vector2[NumberToSpawn];
+        pelletPositions = new Vector3[NumberToSpawn];
 
         for (int i = 0; i < NumberToSpawn; i++)
         {
-            while (_pelletPositions[i] == Vector2.zero)
+            int safety = 0;
+            while (pelletPositions[i] == Vector3.zero && safety < 100)
             {
-                float xPos = Random.Range(-_arenaExtents.x, _arenaExtents.x);
-                float zPos = Random.Range(-_arenaExtents.y, _arenaExtents.y);
-                
-                Vector2 pelletPosition = new Vector2(xPos, zPos);
+                float x = Random.Range(-arenaExtents.x, arenaExtents.x);
+                float y = Random.Range(-arenaExtents.y, arenaExtents.y);
+                float z = Random.Range(-arenaExtents.z, arenaExtents.z);
 
-                if (NearAnotherPellet(pelletPosition)) continue;
-                
-                _pelletPositions[i] = pelletPosition;
-                
-                SpawnPellet(pelletPosition);
+                Vector3 spawnPos = new Vector3(x, y, z);
+
+                if (NearAnotherPellet(spawnPos, i))
+                {
+                    safety++;
+                    continue;
+                }
+
+                pelletPositions[i] = spawnPos;
+                Instantiate(_pelletPrefab, spawnPos, Quaternion.identity);
             }
         }
     }
 
-    private void SpawnPellet(Vector2 position)
+    private bool NearAnotherPellet(Vector3 pos, int currentIndex)
     {
-        Vector3 worldPosition = new Vector3(position.x, 0f, position.y);
-        GameObject pellet = Instantiate(_pelletPrefab, worldPosition, Quaternion.identity);
-    }
-    
-    private bool NearAnotherPellet(Vector2 pelletPosition)
-    {
-        for (int i = 0; i < _pelletPositions.Length; i++)
+        for (int i = 0; i < currentIndex; i++)
         {
-            if ((pelletPosition - _pelletPositions[i]).magnitude < _detectionRadius) return true;
+            if ((pelletPositions[i] - pos).magnitude < _detectionRadius)
+                return true;
         }
-        
         return false;
     }
 }

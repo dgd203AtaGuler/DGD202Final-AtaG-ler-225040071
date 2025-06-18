@@ -5,7 +5,7 @@ using System.IO;
 
 public class ProjectSetup : EditorWindow
 {
-    private string studentNumber = "";
+    private string studentNumber = "225040071";
     private static bool hasShown = false;
     
     [InitializeOnLoadMethod]
